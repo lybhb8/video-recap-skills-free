@@ -93,20 +93,20 @@ A partial switch works too — e.g. keep MiMo VLM/ASR and only swap the voiceove
 Inside Claude Code:
 
 ```text
-/plugin marketplace add lybhb8/video-recap-skills
+/plugin marketplace add lybhb8/video-recap-skills-free
 /plugin install video-recap-skills@video-recap
 ```
 
 Or just say:
 
 ```text
-Install this plugin: https://github.com/lybhb8/video-recap-skills
+Install this plugin: https://github.com/lybhb8/video-recap-skills-free
 ```
 
 #### Codex CLI
 
 ```bash
-codex plugin marketplace add lybhb8/video-recap-skills
+codex plugin marketplace add lybhb8/video-recap-skills-free
 codex plugin add video-recap-skills@video-recap
 ```
 
@@ -117,8 +117,8 @@ For a local checkout, point the source of the first command at the directory pat
 Per the [OpenCode Agent Skills docs](https://opencode.ai/docs/skills/), project-level skills live under `.opencode/skills/<name>/SKILL.md`. After cloning, start OpenCode from the repo directory:
 
 ```bash
-git clone https://github.com/lybhb8/video-recap-skills.git
-cd video-recap-skills
+git clone https://github.com/lybhb8/video-recap-skills-free.git
+cd video-recap-skills-free
 mkdir -p .opencode
 ln -s ../skills .opencode/skills             # macOS / Linux
 opencode debug skill
@@ -131,7 +131,7 @@ On Windows, copy `skills\*` into `.opencode\skills\`. Use `video-recap` for end-
 Clone the repo, import the Claude plugin package, and check the skills list:
 
 ```bash
-openclaw plugins install ./video-recap-skills
+openclaw plugins install ./video-recap-skills-free
 openclaw skills list
 ```
 

@@ -93,20 +93,20 @@ export MIMO_MODEL=glm-4v-flash
 在 Claude Code 内执行：
 
 ```text
-/plugin marketplace add lybhb8/video-recap-skills
+/plugin marketplace add lybhb8/video-recap-skills-free
 /plugin install video-recap-skills@video-recap
 ```
 
 也可以直接说：
 
 ```text
-安装这个插件：https://github.com/lybhb8/video-recap-skills
+安装这个插件：https://github.com/lybhb8/video-recap-skills-free
 ```
 
 #### Codex CLI
 
 ```bash
-codex plugin marketplace add lybhb8/video-recap-skills
+codex plugin marketplace add lybhb8/video-recap-skills-free
 codex plugin add video-recap-skills@video-recap
 ```
 
@@ -117,8 +117,8 @@ codex plugin add video-recap-skills@video-recap
 [OpenCode 官方 Agent Skills 文档](https://opencode.ai/docs/skills/)规定项目级技能放在 `.opencode/skills/<name>/SKILL.md`。克隆仓库后，从仓库目录启动 OpenCode：
 
 ```bash
-git clone https://github.com/lybhb8/video-recap-skills.git
-cd video-recap-skills
+git clone https://github.com/lybhb8/video-recap-skills-free.git
+cd video-recap-skills-free
 mkdir -p .opencode
 ln -s ../skills .opencode/skills             # macOS / Linux
 opencode debug skill
@@ -131,7 +131,7 @@ Windows 可把 `skills\*` 复制到 `.opencode\skills\`。日常端到端制作�
 克隆仓库后导入 Claude 插件包，并检查技能列表：
 
 ```bash
-openclaw plugins install ./video-recap-skills
+openclaw plugins install ./video-recap-skills-free
 openclaw skills list
 ```
 
