@@ -11,12 +11,13 @@ description: >
 ## 1. 定位
 
 本技能读取带时间戳的旁白稿，为每一段生成独立音频，并把语音适配到对应时间窗，随后记录下游合成所需的放置元数据。
-当前唯一引擎是 MiMo TTS（`mimo-v2.5-tts`）。
+引擎由 `TTS_ENGINE` 决定：默认 MiMo TTS（`mimo-v2.5-tts`，需 `MIMO_API_KEY`/`MIMO_TTS_API_KEY`），也可切到免费的微软 `edge-tts`（`TTS_ENGINE=edge-tts`，无需 key）。
 
 ## 2. 环境要求
 
 ```bash
-export MIMO_API_KEY=***  # 也可使用仅供 TTS 的 MIMO_TTS_API_KEY
+export MIMO_API_KEY=***  # MiMo TTS 需要；也可使用仅供 TTS 的 MIMO_TTS_API_KEY
+# 免费方案：export TTS_ENGINE=edge-tts  # 微软 edge-tts，无需任何 key
 ```
 
 下面的 `scripts/...` 均相对于本技能目录。若执行器从仓库根目录启动，请给脚本路径加上本技能的绝对目录。

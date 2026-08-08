@@ -8,13 +8,17 @@ Defaults below are bundle-level defaults unless a note scopes them to a specific
 
 | Concern | Env var / flag | Default | Notes |
 |---|---|---|---|
-| MiMo API key | `MIMO_API_KEY` | — | **required**; one key drives ASR + VLM + TTS. `tp-*` Token-Plan keys auto-route to the cluster base URL |
+| MiMo API key | `MIMO_API_KEY` | — | required **only for the MiMo path**; one key drives ASR + VLM + TTS. `tp-*` Token-Plan keys auto-route to the cluster base URL. Omit entirely when using the free engines below (`TTS_ENGINE=edge-tts`, `ASR_ENGINE=funasr`, a free `MIMO_VIDEO_API_URL`) |
 | Token-Plan cluster | `MIMO_TOKEN_PLAN_CLUSTER` | `cn` | `cn` / `sgp` / `ams` (only for `tp-*` keys) |
-| VLM / chat model | `MIMO_MODEL` | `mimo-v2.5` | frame VLM + reviewer + consolidate |
+| TTS engine | `TTS_ENGINE` | `mimo-tts` | `mimo-tts` (MiMo, needs key) or `edge-tts` (Microsoft edge-tts, free, no key) |
+| ASR engine | `ASR_ENGINE` | `mimo` | `mimo` (MiMo ASR, needs key) or `funasr` (local FunASR/SenseVoice, free); `funasr` needs `FUNASR_BIN` + `FUNASR_MODEL` below |
+| FunASR binary | `FUNASR_BIN` | — | `llama-funasr-sensevoice` executable (a directory auto-appends the platform default name) |
+| FunASR model | `FUNASR_MODEL` | — | e.g. `sensevoice-small-q8.gguf`; optional `FUNASR_VAD` (e.g. `fsmn-vad.gguf`) |
+| VLM / chat model | `MIMO_MODEL` | `mimo-v2.5` | frame VLM + reviewer + consolidate; set to the free endpoint's model (e.g. `glm-4v-flash`) when `MIMO_VIDEO_API_URL` points at a free OpenAI-compatible endpoint |
 | ASR model | `MIMO_ASR_MODEL` | `mimo-v2.5-asr` | speech-to-text |
 | ASR language | `MIMO_ASR_LANGUAGE` | `auto` | `auto` / `zh` / `en` |
 | ASR window | `ASR_SEGMENT_SECONDS` | `15` | smaller → finer dialogue timestamps (stays under MiMo's 10MB base64 cap) |
-| TTS model | `MIMO_TTS_MODEL` | `mimo-v2.5-tts` | the only TTS engine |
+| TTS model | `MIMO_TTS_MODEL` | `mimo-v2.5-tts` | MiMo TTS model (used when `TTS_ENGINE=mimo-tts`) |
 | MiMo voice | `MIMO_TTS_VOICE` / `--mimo-tts-voice` | `冰糖` | |
 | Cloned narration voice | `VOICE_REF` / `--voice-ref` | off | full/cut only; lazily normalize once, then use `mimo-v2.5-tts-voiceclone`; mutually exclusive with `--mimo-tts-voice`; requires authorization and sends the reference to MiMo |
 | Advisory MiMo QC | `MIMO_QC` / `--mimo-qc {off,pre-assemble,post-render,both}` | `off` | optional subjective review at the selected stage(s), one request per stage. Always fail-open: results only point the agent/user to `mimo_qc.json`, never block or auto-repair |

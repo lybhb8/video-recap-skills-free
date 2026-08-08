@@ -6,7 +6,7 @@
 
 中文 · [English](README.en.md)
 
-**在 Claude Code、Codex CLI、OpenCode 或 OpenClaw 里，用一句自然语言把视频变成中文解说成片。** 本地只需要 Python、`ffmpeg` 和一个小米 MiMo API Key；不用 GPU，不用下载模型，macOS / Linux / Windows 均可运行。
+**在 Claude Code、Codex CLI、OpenCode 或 OpenClaw 里，用一句自然语言把视频变成中文解说成片。** 本地只需要 Python 和 `ffmpeg`；AI 能力可全免费：TTS 用微软 `edge-tts`、ASR 用本地 FunASR、VLM 可接免费视觉端点（如 GLM-4V-Flash），也可以只用一个[小米 MiMo](https://platform.xiaomimimo.com) API Key 跑通全部能力。不用 GPU，不用下载模型，macOS / Linux / Windows 均可运行。
 
 ## 技能一览
 
@@ -37,7 +37,7 @@ flowchart LR
 
 ## 为什么用它
 
-- **一个 key 跑全程。** ASR、VLM、TTS 全走[小米 MiMo](https://platform.xiaomimimo.com)；本地运行时只有 Python 标准库和 `ffmpeg`，不用 `pip install`。
+- **免费也能跑全程。** 默认走[小米 MiMo](https://platform.xiaomimimo.com)（一个 key 驱动 ASR + VLM + TTS），但每项能力都有免费替代：TTS 切 `TTS_ENGINE=edge-tts`、ASR 切 `ASR_ENGINE=funasr`（本地 SenseVoice）、VLM 把 `MIMO_VIDEO_API_URL` 指向免费视觉端点即可；本地运行时只有 Python 标准库和 `ffmpeg`，不用 `pip install`。
 - **先做创作决定，再分配声音。** Agent 先比较剪辑假设，锁定 POV、主线、具体画面与原声锚点；旁白有明确任务时才整块配音，强对白、动作声或沉默可以完整主导一个 beat。
 - **先剪后配，画面对齐。** 剪辑模式先把长视频剪成成片，再对着成片写解说，时间轴天然对齐。
 - **多视频也能剪，分析可复用。** 一次传多个视频，按 `source_id` 选段剪成一个成片；每个视频的分析沉淀为文件系统素材库，下次 `grep` 复用、不重算。
@@ -50,18 +50,41 @@ flowchart LR
 
 - Python 3.10+
 - `PATH` 上可用的 `ffmpeg`；默认烧录字幕，因此需要带 libass / `subtitles` 滤镜
-- 一个[小米 MiMo](https://platform.xiaomimimo.com) API Key，同时驱动 ASR、VLM 和 TTS
+- AI 能力：默认需要[小米 MiMo](https://platform.xiaomimimo.com) API Key（同时驱动 ASR、VLM 和 TTS），或按下方「免费方案」配置免费的 TTS / ASR / VLM
 
 ```bash
 brew install ffmpeg                         # macOS
 sudo apt install ffmpeg                    # Debian / Ubuntu
 choco install ffmpeg                       # Windows，也可用 scoop / winget
 
-export MIMO_API_KEY=your-mimo-key          # macOS / Linux
+export MIMO_API_KEY=your-mimo-key          # macOS / Linux（MiMo 方案）
 export MIMO_TOKEN_PLAN_CLUSTER=cn          # tp-* key 可选：cn | sgp | ams
 ```
 
 Windows PowerShell 使用 `$env:MIMO_API_KEY="your-mimo-key"`。按量付费的 `sk-*` key 默认连接 `https://api.xiaomimimo.com/v1`；模型、音色、响度和字幕等高级配置见[配置手册](skills/video-recap/references/config-playbook.md)。
+
+### 1.5 免费方案（可选，无需 MiMo key）
+
+三项 AI 能力各自可切到免费实现，全免费即可端到端出片：
+
+| 能力 | 环境变量 | 说明 |
+|---|---|---|
+| TTS | `TTS_ENGINE=edge-tts` | 微软 edge-tts 免费语音合成（中文音色丰富，无需 key） |
+| ASR | `ASR_ENGINE=funasr` | 本地 FunASR / SenseVoice 转写，另需 `FUNASR_BIN`（可执行文件）与 `FUNASR_MODEL`（如 `sensevoice-small-q8.gguf`） |
+| VLM | `MIMO_VIDEO_API_URL` 指向免费视觉端点，`MIMO_MODEL` 设为对应模型 | 如智谱 GLM-4V-Flash 等 OpenAI 兼容免费端点（帧图分批发送，默认每批 5 张） |
+
+示例（全免费）：
+
+```bash
+export TTS_ENGINE=edge-tts
+export ASR_ENGINE=funasr
+export FUNASR_BIN=/path/to/llama-funasr-sensevoice
+export FUNASR_MODEL=/path/to/sensevoice-small-q8.gguf
+export MIMO_VIDEO_API_URL=https://your-free-vlm-endpoint/v1
+export MIMO_MODEL=glm-4v-flash
+```
+
+只切换其中一部分也可以——例如保留 MiMo VLM/ASR、仅把配音换成免费的 edge-tts。未配置免费项时仍走 MiMo（需 `MIMO_API_KEY`）。
 
 ### 2. 选择 Agent 宿主
 

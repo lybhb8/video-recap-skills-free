@@ -6,7 +6,7 @@
 
 [中文](README.md) · English
 
-**In Claude Code, Codex CLI, OpenCode, or OpenClaw, one natural-language request turns a video into a Chinese-narration recap.** It needs only Python, `ffmpeg`, and one Xiaomi MiMo API key locally: no GPU, no model downloads, and it runs on macOS / Linux / Windows.
+**In Claude Code, Codex CLI, OpenCode, or OpenClaw, one natural-language request turns a video into a Chinese-narration recap.** Locally it needs only Python and `ffmpeg`; the AI capabilities can run fully free: TTS via Microsoft `edge-tts`, ASR via local FunASR, and VLM via a free vision endpoint (e.g. GLM-4V-Flash) — or a single [Xiaomi MiMo](https://platform.xiaomimimo.com) API key can power all of them. No GPU, no model downloads, and it runs on macOS / Linux / Windows.
 
 ## Skills at a glance
 
@@ -37,7 +37,7 @@ flowchart LR
 
 ## Why use it
 
-- **One key end to end.** ASR, VLM, and TTS all go through [Xiaomi MiMo](https://platform.xiaomimimo.com); locally only the Python standard library and `ffmpeg` are needed, no `pip install`.
+- **Runs free end to end.** It defaults to [Xiaomi MiMo](https://platform.xiaomimimo.com) (one key drives ASR + VLM + TTS), but every capability has a free alternative: TTS via `TTS_ENGINE=edge-tts`, ASR via `ASR_ENGINE=funasr` (local SenseVoice), and VLM by pointing `MIMO_VIDEO_API_URL` at a free vision endpoint. Locally only the Python standard library and `ffmpeg` are needed, no `pip install`.
 - **Creative decisions first, sound second.** The agent compares edit hypotheses, locks in POV, spine, concrete shots, and original-audio anchors; narration is voiced in whole blocks only when it has a job, while strong dialogue, action sound, or silence may fully own a beat.
 - **Cut first, then voice, picture-aligned.** Cut mode assembles the long video into the final cut first, then writes narration against that output timeline, so timing aligns naturally.
 - **Multi-video cutting, reusable analysis.** Pass several videos and cut segments by `source_id` into one cut; each video's analysis is stored as a file-system material library, reused by `grep` instead of recomputed.
@@ -50,18 +50,41 @@ flowchart LR
 
 - Python 3.10+
 - `ffmpeg` available on `PATH`; burned-in subtitles are on by default, so a libass / `subtitles` filter is required
-- One [Xiaomi MiMo](https://platform.xiaomimimo.com) API key, driving ASR, VLM, and TTS
+- AI capabilities: by default a [Xiaomi MiMo](https://platform.xiaomimimo.com) API key (driving ASR, VLM, and TTS), or the free configuration in "Free setup" below
 
 ```bash
 brew install ffmpeg                         # macOS
 sudo apt install ffmpeg                    # Debian / Ubuntu
 choco install ffmpeg                       # Windows, or scoop / winget
 
-export MIMO_API_KEY=your-mimo-key          # macOS / Linux
+export MIMO_API_KEY=your-mimo-key          # macOS / Linux (MiMo setup)
 export MIMO_TOKEN_PLAN_CLUSTER=cn          # tp-* key optional: cn | sgp | ams
 ```
 
 On Windows PowerShell use `$env:MIMO_API_KEY="your-mimo-key"`. Pay-as-you-go `sk-*` keys default to `https://api.xiaomimimo.com/v1`; advanced model, voice, loudness, and subtitle settings are in the [config playbook](skills/video-recap/references/config-playbook.md).
+
+### 1.5 Free setup (optional, no MiMo key needed)
+
+Each AI capability can be switched to a free implementation, so a fully free end-to-end run is possible:
+
+| Capability | Env var | Notes |
+|---|---|---|
+| TTS | `TTS_ENGINE=edge-tts` | Microsoft edge-tts free speech synthesis (rich Chinese voices, no key) |
+| ASR | `ASR_ENGINE=funasr` | Local FunASR / SenseVoice transcription; also needs `FUNASR_BIN` (executable) and `FUNASR_MODEL` (e.g. `sensevoice-small-q8.gguf`) |
+| VLM | point `MIMO_VIDEO_API_URL` at a free vision endpoint and set `MIMO_MODEL` accordingly | e.g. Zhipu GLM-4V-Flash or another OpenAI-compatible free endpoint (frames are batched, 5 per request by default) |
+
+Example (fully free):
+
+```bash
+export TTS_ENGINE=edge-tts
+export ASR_ENGINE=funasr
+export FUNASR_BIN=/path/to/llama-funasr-sensevoice
+export FUNASR_MODEL=/path/to/sensevoice-small-q8.gguf
+export MIMO_VIDEO_API_URL=https://your-free-vlm-endpoint/v1
+export MIMO_MODEL=glm-4v-flash
+```
+
+A partial switch works too — e.g. keep MiMo VLM/ASR and only swap the voiceover for free edge-tts. Capabilities without a free override keep using MiMo (needs `MIMO_API_KEY`).
 
 ### 2. Pick an agent host
 
@@ -139,7 +162,7 @@ Cut /path/to/long.mp4 into a ten-minute recap, keeping the key original audio an
 **Multiple videos into one story:**
 
 ```text
-Make a ten-minute recap from /path/to/ep1.mp4 and /path/to/ep2.mp4, editing around one through-line; do not split it into two mini-summaries.
+Use /path/to/ep1.mp4 and /path/to/ep2.mp4 to make a ten-minute recap, editing around one through-line; do not split it into two mini-summaries.
 ```
 
 The agent handles understanding, story & AV planning, cutting, script writing, voiceover, and assembly automatically. In cut mode it decides the kept clips first, renders the edited cut, then writes narration on the output timeline; pauses and resume are also handled by the agent.

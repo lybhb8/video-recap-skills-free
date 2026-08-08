@@ -32,10 +32,13 @@ description: >
 
 ```bash
 # ffmpeg: brew install ffmpeg | apt install ffmpeg | choco install ffmpeg
-export MIMO_API_KEY=***
+export MIMO_API_KEY=***   # MiMo 方案（ASR + VLM）
+# 免费替代：
+#   ASR: export ASR_ENGINE=funasr  + FUNASR_BIN / FUNASR_MODEL（本地 SenseVoice，无需 key）
+#   VLM: export MIMO_VIDEO_API_URL=<免费视觉端点>/v1 + MIMO_MODEL=<对应模型>（如 glm-4v-flash）
 ```
 
-ASR 使用 `mimo-v2.5-asr`；VLM 使用 `mimo-v2.5`。`--skip-asr` 可跳过对白转写，但完整理解仍需要 `MIMO_API_KEY` 运行 VLM。`--mimo-video-overview` 可开启按场景块的视频概览。
+ASR 默认使用 `mimo-v2.5-asr`，可切 `ASR_ENGINE=funasr` 走本地免费转写；VLM 默认使用 `mimo-v2.5`，可通过 `MIMO_VIDEO_API_URL` 指向免费视觉端点。`--skip-asr` 可跳过对白转写，但完整理解仍需要 VLM（MiMo key 或免费端点二选一）。`--mimo-video-overview` 可开启按场景块的视频概览。
 
 若 `work_dir/background_research.json` 存在，本技能会把剧情梗概和角色名折入 VLM 上下文；`--context` 可补充一条简短提示。
 
