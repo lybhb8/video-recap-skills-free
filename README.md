@@ -1,4 +1,4 @@
-# video-recap-skills
+# video-recap-skills-free
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-purple)
