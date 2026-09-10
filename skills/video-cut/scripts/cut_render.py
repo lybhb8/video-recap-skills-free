@@ -1,7 +1,7 @@
 """Render edited source media and write delivery QC."""
 
 import json
-
+import os
 
 from pathlib import Path
 
@@ -306,6 +306,37 @@ def build_edited_source_video(input_video, validated_plan, work_dir, output_path
     input_args = []
     for source_path in source_paths:
         input_args.extend(["-i", str(source_path)])
+    video_codec = os.environ.get("CUT_VIDEO_CODEC") or CONFIG.get(
+        "cut_video_codec", "libx264"
+    )
+    video_preset = os.environ.get("CUT_VIDEO_PRESET") or CONFIG.get(
+        "cut_video_preset", "veryfast"
+    )
+    video_crf = os.environ.get("CUT_VIDEO_CRF") or CONFIG.get("cut_video_crf", "18")
+    if video_codec in ("libx264", "libx265", ""):
+        video_args = [
+            "-c:v",
+            "libx264",
+            "-preset",
+            video_preset,
+            "-crf",
+            video_crf,
+        ]
+    else:
+        # hardware encode (e.g. h264_nvenc / h264_qsv / h264_amf)
+        nvenc_preset = {"veryfast": "p1", "faster": "p2", "fast": "p3"}.get(
+            video_preset, video_preset
+        )
+        video_args = [
+            "-c:v",
+            video_codec,
+            "-preset",
+            nvenc_preset,
+            "-crf",
+            video_crf,
+            "-g",
+            "250",
+        ]
     cmd = [
         "ffmpeg",
         "-y",
@@ -313,12 +344,7 @@ def build_edited_source_video(input_video, validated_plan, work_dir, output_path
         *extra_inputs,
         *filter_args,
         *maps,
-        "-c:v",
-        "libx264",
-        "-preset",
-        "veryfast",
-        "-crf",
-        "18",
+        *video_args,
         "-pix_fmt",
         "yuv420p",
         "-c:a",

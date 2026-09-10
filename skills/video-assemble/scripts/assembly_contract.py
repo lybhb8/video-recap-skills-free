@@ -179,7 +179,9 @@ def _build_assembly_qc(tts_segments, video_duration, *, output_path=None,
                     with wave.open(str(placed_path), "rb") as placed_wav:
                         placed_duration = placed_wav.getnframes() / placed_wav.getframerate()
                         tolerance = 1.0 / placed_wav.getframerate()
-                    timeline_start = round(float(s.get("actual_place_start")), 4)
+                    timeline_start = math.floor(
+                        float(s.get("actual_place_start")) * 10_000 + 1e-9
+                    ) / 10_000
                     timeline_end = math.ceil(
                         float(s.get("actual_place_end")) * 10_000 - 1e-9
                     ) / 10_000

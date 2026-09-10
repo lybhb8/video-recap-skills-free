@@ -36,6 +36,17 @@ def _ceil_time(value, digits=4):
     return math.ceil((float(value) * scale) - 1e-9) / scale
 
 
+def _floor_time(value, digits=4):
+    """Round an interval start inward so serialization can never shorten media.
+
+    Mirrors _ceil_time: rounding a start up (e.g. round()) makes the serialized
+    span shorter than the placed audio, which the assembly QC flags as a
+    timeline/audio mismatch even though the audio file is intact.
+    """
+    scale = 10 ** digits
+    return math.floor((float(value) * scale) + 1e-9) / scale
+
+
 def build_timeline(canvas, duration_s, video_clips, narration_segments,
                    bgm=None, ducking=None, subtitle_segments=None,
                    image_segments=None, resource_packages=None,
@@ -118,7 +129,7 @@ def build_timeline(canvas, duration_s, video_clips, narration_segments,
             continue
         narration = {
             "source_path": s["source_path"],
-            "timeline_start": round(ts, 4),
+            "timeline_start": _floor_time(ts, 4),
             "timeline_end": _ceil_time(te, 4),
             "gain": round(float(s.get("gain", 1.0)), 4),
             "text": s.get("text", ""),
